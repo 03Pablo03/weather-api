@@ -3,14 +3,18 @@ import { evaluateAlerts } from '../utils/alerts.js';
 
 export async function getAlerts(req, res, fetchForecastFn) {
   try {
-    const forecast = await fetchForecastFn();
+    const lat = req.query?.lat ? parseFloat(req.query.lat) : config.latitude;
+    const lon = req.query?.lon ? parseFloat(req.query.lon) : config.longitude;
+    const city = req.query?.city || 'Valencia';
+
+    const forecast = await fetchForecastFn(undefined, lat, lon);
     const alerts = evaluateAlerts(forecast, config.alertThresholds);
 
     const response = {
       location: {
-        latitude: config.latitude,
-        longitude: config.longitude,
-        city: 'Valencia'
+        latitude: lat,
+        longitude: lon,
+        city
       },
       alerts,
       evaluated_hours: forecast.length,

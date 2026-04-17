@@ -1,4 +1,9 @@
+// Current location state
+let currentLocation = { lat: 39.47, lon: -0.38, city: 'Valencia' };
+
 // DOM Elements
+const citySearchForm = document.getElementById('city-search-form');
+const cityInput = document.getElementById('city-input');
 const stateLoading = document.getElementById('state-loading');
 const stateError = document.getElementById('state-error');
 const stateData = document.getElementById('state-data');
@@ -73,12 +78,28 @@ function renderWeather(data) {
   showState('data');
 }
 
+// Geocode city name using Open-Meteo Geocoding API
+async function geocodeCity(cityName) {
+  const url = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(cityName)}&count=1&language=es&format=json`;
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Error en geocodificacion');
+  const data = await response.json();
+  if (!data.results || data.results.length === 0) throw new Error(`Ciudad no encontrada: ${cityName}`);
+  const result = data.results[0];
+  return {
+    lat: result.latitude,
+    lon: result.longitude,
+    city: result.name + (result.country ? `, ${result.country}` : '')
+  };
+}
+
 // Fetch weather data
 async function fetchWeatherData() {
   showState('loading');
 
   try {
-    const response = await fetch('/api/weather');
+    const { lat, lon, city } = currentLocation;
+    const response = await fetch(`/api/weather?lat=${lat}&lon=${lon}&city=${encodeURIComponent(city)}`);
 
     if (!response.ok) {
       throw new Error(`Error del servidor: ${response.status}`);
@@ -171,7 +192,8 @@ function renderAlerts(data) {
 // Fetch forecast data
 async function fetchForecastData() {
   try {
-    const response = await fetch('/api/forecast');
+    const { lat, lon, city } = currentLocation;
+    const response = await fetch(`/api/forecast?lat=${lat}&lon=${lon}&city=${encodeURIComponent(city)}`);
     if (!response.ok) throw new Error('Error al obtener prevision');
     const data = await response.json();
     renderForecast(data);
@@ -183,7 +205,8 @@ async function fetchForecastData() {
 // Fetch alerts data
 async function fetchAlertsData() {
   try {
-    const response = await fetch('/api/alerts');
+    const { lat, lon, city } = currentLocation;
+    const response = await fetch(`/api/alerts?lat=${lat}&lon=${lon}&city=${encodeURIComponent(city)}`);
     if (!response.ok) throw new Error('Error al obtener alertas');
     const data = await response.json();
     renderAlerts(data);
@@ -196,6 +219,27 @@ async function fetchAlertsData() {
 async function fetchAllData() {
   await Promise.all([fetchWeatherData(), fetchForecastData(), fetchAlertsData()]);
 }
+
+// City search handler
+citySearchForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const query = cityInput.value.trim();
+  if (!query) return;
+
+  showState('loading');
+  cityInput.disabled = true;
+
+  try {
+    currentLocation = await geocodeCity(query);
+    cityInput.value = '';
+    await fetchAllData();
+  } catch (error) {
+    errorMessage.textContent = error.message;
+    showState('error');
+  } finally {
+    cityInput.disabled = false;
+  }
+});
 
 // Event listeners
 btnRefresh.addEventListener('click', fetchAllData);

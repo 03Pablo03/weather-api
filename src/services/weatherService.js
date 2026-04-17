@@ -1,8 +1,8 @@
 import fetch from 'node-fetch';
 import config from '../config/index.js';
 
-export async function fetchWeather(fetchFn = fetch) {
-  const url = `${config.apiBaseUrl}?latitude=${config.latitude}&longitude=${config.longitude}&current=temperature_2m,wind_speed_10m,wind_direction_10m,weather_code`;
+export async function fetchWeather(fetchFn = fetch, lat = config.latitude, lon = config.longitude) {
+  const url = `${config.apiBaseUrl}?latitude=${lat}&longitude=${lon}&current=temperature_2m,wind_speed_10m,wind_direction_10m,weather_code`;
 
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 5000);

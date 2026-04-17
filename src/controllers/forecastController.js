@@ -9,13 +9,17 @@ import {
 
 export async function getForecast(req, res, fetchForecastFn) {
   try {
-    const forecast = await fetchForecastFn();
+    const lat = req.query?.lat ? parseFloat(req.query.lat) : config.latitude;
+    const lon = req.query?.lon ? parseFloat(req.query.lon) : config.longitude;
+    const city = req.query?.city || 'Valencia';
+
+    const forecast = await fetchForecastFn(undefined, lat, lon);
 
     const response = {
       location: {
-        latitude: config.latitude,
-        longitude: config.longitude,
-        city: 'Valencia'
+        latitude: lat,
+        longitude: lon,
+        city
       },
       source: 'Open-Meteo API',
       forecast: forecast.map(hour => ({

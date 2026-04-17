@@ -9,13 +9,17 @@ import {
 
 export async function getWeather(req, res, fetchWeatherFn) {
   try {
-    const weather = await fetchWeatherFn();
+    const lat = req.query?.lat ? parseFloat(req.query.lat) : config.latitude;
+    const lon = req.query?.lon ? parseFloat(req.query.lon) : config.longitude;
+    const city = req.query?.city || 'Valencia';
+
+    const weather = await fetchWeatherFn(undefined, lat, lon);
 
     const response = {
       location: {
-        latitude: config.latitude,
-        longitude: config.longitude,
-        city: 'Valencia'
+        latitude: lat,
+        longitude: lon,
+        city
       },
       timestamp: weather.time,
       source: 'Open-Meteo API',

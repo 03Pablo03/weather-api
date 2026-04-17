@@ -272,6 +272,39 @@ footer {
   --color-accent: var(--color-hot);
 }
 
+/* ===== City Search ===== */
+.city-search {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+  margin-top: 1rem;
+}
+
+.city-input {
+  padding: 0.55rem 1rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  width: 220px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.city-input:focus {
+  border-color: var(--color-cool);
+}
+
+.btn--search {
+  background: var(--color-cool);
+  color: #fff;
+  padding: 0.55rem 1rem;
+  font-size: 0.9rem;
+}
+
+.btn--search:hover {
+  filter: brightness(1.1);
+}
+
 /* ===== Alerts Section ===== */
 .alerts-section {
   width: 100%;
