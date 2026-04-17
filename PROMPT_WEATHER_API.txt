@@ -1,0 +1,228 @@
+================================================================================
+PROMPT PARA CLAUDE CODE — PROYECTO: API REST METEOROLÓGICA CON IA
+================================================================================
+
+CONTEXTO DEL PROYECTO:
+Necesito que crees un proyecto completo en Node.js (o Python, elige el que mejor encaje) que publique una API REST de consulta de datos meteorológicos. Antes de escribir código, necesitas crear toda la infraestructura de agentes, skills y el CLAUDE.md del proyecto.
+
+================================================================================
+PARTE 1: ESTRUCTURA DE AGENTES Y SKILLS DE CLAUDE CODE
+================================================================================
+
+Antes de tocar una sola línea de código, crea la siguiente estructura de archivos:
+
+1. CLAUDE.md en la raíz del proyecto — Documento maestro que define:
+   - Descripción del proyecto y su propósito
+   - Stack tecnológico elegido y justificación
+   - Convenciones de código (naming, estructura de carpetas, imports)
+   - Reglas de arquitectura: separación de responsabilidades, cada módulo con una única responsabilidad
+   - Regla obligatoria: NO escribir código de producción sin su test unitario correspondiente (TDD)
+   - Flujo de trabajo: siempre pasar por el agente de arquitectura antes de implementar, luego testing, luego code review
+   - Listado de todos los agentes disponibles en .claude/agents/ y cuándo usar cada uno
+   - Instrucciones de cómo ejecutar el proyecto, los tests y el linter
+
+2. Directorio .claude/agents/ con los siguientes agentes especializados:
+
+   a) architect.md — Agente de Arquitectura
+      - Responsabilidad: diseñar la estructura del proyecto, definir módulos, interfaces y contratos entre componentes
+      - Debe validar que cada decisión de diseño cumple con separación de responsabilidades
+      - Define la estructura de carpetas antes de que se escriba código
+      - Valida que los endpoints siguen buenas prácticas REST
+      - Skills: conocimiento de patrones de diseño, clean architecture, principios SOLID
+
+   b) developer.md — Agente de Desarrollo
+      - Responsabilidad: implementar el código siguiendo las decisiones del arquitecto
+      - NUNCA escribe código sin que exista primero un test que lo valide (TDD estricto)
+      - Sigue las convenciones definidas en CLAUDE.md
+      - Implementa manejo de errores robusto (qué pasa si la API externa falla, timeout, datos inválidos)
+      - Skills: dominio del framework elegido, manejo de APIs externas, HTTP clients, async/await
+
+   c) tester.md — Agente de Testing
+      - Responsabilidad: escribir y mantener todos los tests unitarios
+      - Debe cubrir: funciones de conversión de unidades, validación de datos, manejo de errores, respuestas del endpoint
+      - Usa mocks para las llamadas a la API externa (no depender de red en tests)
+      - Objetivo de cobertura: 90%+ en las funciones de lógica de negocio
+      - Skills: framework de testing (Jest/Vitest/pytest), mocking, assertions, cobertura
+
+   d) reviewer.md — Agente de Code Review
+      - Responsabilidad: revisar TODO el código antes de darlo por terminado
+      - Checklist de revisión: ¿hay tests? ¿pasan? ¿el código es legible? ¿hay código duplicado? ¿manejo de errores? ¿las funciones tienen una sola responsabilidad? ¿los nombres son descriptivos?
+      - Verifica que no hay secrets hardcodeados, que las URLs externas están en configuración
+      - Skills: code review best practices, detección de code smells
+
+   e) frontend.md — Agente de Frontend
+      - Responsabilidad: diseñar e implementar la interfaz web que consume la API REST
+      - Debe ser una SPA (Single Page Application) limpia, responsive y visualmente atractiva
+      - Usa HTML + CSS + JavaScript vanilla (o React si lo prefieres, pero que sea un solo build sencillo)
+      - Muestra los datos meteorológicos de forma clara con iconos o indicadores visuales
+      - Incluye un botón de actualizar para refrescar los datos
+      - Muestra las unidades alternativas (toggle o lado a lado)
+      - Manejo de estados: loading, error (si la API falla), datos cargados
+      - Debe servirse desde el mismo servidor backend (carpeta /public o /static)
+      - Skills: diseño responsive, fetch API, manejo de estados UI, UX clara
+
+   f) docs.md — Agente de Documentación
+      - Responsabilidad: documentar el proyecto completo
+      - Genera README.md con instrucciones de instalación, ejecución y testing
+      - Documenta cada endpoint (método, ruta, parámetros, respuesta ejemplo)
+      - Documenta las funciones de conversión con sus fórmulas
+      - Skills: markdown, documentación técnica, ejemplos claros
+
+3. Directorio .claude/skills/ con los siguientes skills:
+
+   a) unit-conversion.md — Skill de conversión de unidades
+      - Fórmulas de conversión de temperatura: Celsius ↔ Fahrenheit, Celsius ↔ Kelvin
+      - Fórmulas de conversión de velocidad del viento: km/h ↔ mph, km/h ↔ m/s, km/h ↔ nudos
+      - Cada función de conversión debe ser pura (sin efectos secundarios), recibir un número y devolver un número
+      - Todas deben tener tests unitarios con casos edge (0, negativos, decimales)
+
+   b) external-api.md — Skill de consumo de API externa
+      - URL base: https://api.open-meteo.com/v1/forecast
+      - Parámetros requeridos: latitude=39.47, longitude=-0.38, current_weather=true
+      - Estructura esperada de la respuesta de Open-Meteo (campo current_weather con temperature, windspeed, etc.)
+      - Manejo de errores: timeout, respuesta no JSON, campos faltantes, HTTP errors
+      - El cliente HTTP debe estar abstraído para poder mockearlo en tests
+
+   c) rest-api-design.md — Skill de diseño de API REST
+
+   d) frontend-ui.md — Skill de interfaz web meteorológica
+      - Layout: card central con los datos del tiempo, fondo que cambie según temperatura o condición
+      - Secciones: temperatura (con las 2 unidades), viento (con las 2 unidades), ubicación, timestamp
+      - Elementos visuales: iconos de termómetro y viento (pueden ser emoji o SVG simples), indicador de carga (spinner)
+      - Responsive: que se vea bien en móvil y desktop
+      - Paleta de colores: tonos fríos para temperaturas bajas, cálidos para altas (opcional pero valorable)
+      - Accesibilidad básica: contraste adecuado, alt texts, semántica HTML correcta
+      - Botón de refresh que llame al endpoint y actualice los datos sin recargar la página
+      - El endpoint debe devolver JSON formateado
+      - La respuesta debe incluir temperatura en al menos 2 unidades (ej: Celsius y Fahrenheit)
+      - La respuesta debe incluir velocidad del viento en al menos 2 unidades (ej: km/h y mph)
+      - Incluir metadata: timestamp de la consulta, coordenadas, fuente de datos
+      - Códigos HTTP correctos: 200 OK, 502 Bad Gateway (si falla la API externa), 500 Internal Server Error
+
+================================================================================
+PARTE 2: REQUISITOS FUNCIONALES DEL CÓDIGO
+================================================================================
+
+Una vez creada toda la infraestructura de agentes y skills, implementa el proyecto siguiendo este orden estricto:
+
+PASO 1 — El arquitecto diseña la estructura:
+- Crear la estructura de carpetas del proyecto
+- Definir los módulos y sus interfaces
+- Estructura sugerida (adáptala si hay mejor opción):
+  /src
+    /controllers    → lógica del endpoint
+    /services       → llamada a API externa
+    /utils          → funciones de conversión de unidades
+    /config         → configuración (URL base, coordenadas, puerto)
+  /public
+    index.html      → página principal del frontend
+    style.css       → estilos
+    app.js          → lógica del frontend (fetch a la API, render de datos)
+  /tests
+    /unit           → tests unitarios
+  package.json o requirements.txt
+  README.md
+
+PASO 2 — El tester escribe los tests PRIMERO (TDD):
+- Tests para conversión de temperatura:
+  - Celsius a Fahrenheit (0°C = 32°F, 100°C = 212°F, -40°C = -40°F)
+  - Celsius a Kelvin (0°C = 273.15K, -273.15°C = 0K)
+- Tests para conversión de velocidad del viento:
+  - km/h a mph (conocer factor: 1 km/h = 0.621371 mph)
+  - km/h a m/s (1 km/h = 0.277778 m/s)
+- Tests para el servicio de API externa (con mock):
+  - Respuesta exitosa: devuelve datos formateados
+  - Respuesta con error: maneja timeout y errores HTTP
+  - Respuesta con datos faltantes: maneja campos null/undefined
+- Tests para el endpoint:
+  - GET al endpoint devuelve 200 con estructura correcta
+  - La respuesta contiene temperatura en 2 unidades
+  - La respuesta contiene viento en 2 unidades
+
+PASO 3 — El developer implementa el código:
+- Módulo de configuración: URL, coordenadas, puerto del servidor (todo configurable por variables de entorno)
+- Módulo de conversión de unidades: funciones puras, exportadas individualmente
+- Módulo de servicio externo: fetch/axios/requests a Open-Meteo, con timeout y manejo de errores
+- Módulo del controlador/endpoint: 
+  - Ruta: GET /api/weather (o similar)
+  - Llama al servicio externo
+  - Aplica conversiones
+  - Devuelve JSON con este formato (ejemplo):
+    {
+      "location": {
+        "latitude": 39.47,
+        "longitude": -0.38,
+        "city": "Valencia"
+      },
+      "timestamp": "2026-04-07T12:00:00Z",
+      "source": "Open-Meteo API",
+      "temperature": {
+        "celsius": 22.5,
+        "fahrenheit": 72.5
+      },
+      "wind_speed": {
+        "kmh": 15.0,
+        "mph": 9.32
+      }
+    }
+- Servidor HTTP que escuche en el puerto configurado
+
+PASO 4 — El agente frontend implementa la interfaz web:
+- Crear index.html con estructura semántica (header, main, footer)
+- Card central que muestre:
+  - Nombre de la ciudad (Valencia) y coordenadas
+  - Temperatura en Celsius y Fahrenheit, con icono de termómetro
+  - Velocidad del viento en km/h y mph, con icono de viento
+  - Timestamp de última actualización
+- Botón "Actualizar datos" que haga fetch a GET /api/weather y actualice el DOM sin recargar
+- Estados visuales:
+  - Loading: spinner o texto "Cargando..." mientras espera respuesta
+  - Error: mensaje claro si la API falla ("No se pudieron obtener los datos meteorológicos")
+  - Datos cargados: mostrar toda la info formateada
+- CSS responsive (media queries para móvil/desktop)
+- Al cargar la página, hacer automáticamente la primera petición al endpoint
+- El backend debe servir la carpeta /public como contenido estático (express.static o equivalente)
+
+PASO 5 — El reviewer revisa todo:
+- Verificar que todos los tests pasan
+- Verificar cobertura de tests
+- Verificar manejo de errores
+- Verificar que no hay hardcoded values
+- Verificar que el código es limpio y legible
+
+PASO 6 — El agente de docs documenta:
+- README.md completo con:
+  - Descripción del proyecto
+  - Requisitos previos
+  - Instalación (npm install / pip install)
+  - Ejecución (npm start / python app.py)
+  - Ejecución de tests (npm test / pytest)
+  - Ejemplo de request y response del endpoint
+  - Variables de entorno disponibles
+
+================================================================================
+PARTE 3: RESTRICCIONES Y NOTAS IMPORTANTES
+================================================================================
+
+- El código debe funcionar sin configuración adicional (las coordenadas de Valencia y la URL de Open-Meteo deben estar como valores por defecto)
+- Los tests deben poder ejecutarse sin conexión a internet (mockear la API externa)
+- Cada función de conversión debe estar en su propio archivo o claramente separada
+- El proyecto debe poder arrancarse con un solo comando después de instalar dependencias
+- Usar un linter (ESLint/Flake8) y que el código pase sin warnings
+- Incluir un .gitignore apropiado
+- NO usar bases de datos, NO usar autenticación — es un servicio simple de consulta
+
+================================================================================
+FLUJO DE EJECUCIÓN OBLIGATORIO
+================================================================================
+
+1. Crear CLAUDE.md, .claude/agents/*, .claude/skills/*
+2. Crear estructura de carpetas vacía
+3. Escribir TODOS los tests primero
+4. Implementar código backend hasta que todos los tests pasen
+5. Implementar frontend (index.html, style.css, app.js) y servir como estático
+6. Code review del agente reviewer
+7. Documentación con el agente docs
+8. Verificación final: arrancar servidor, abrir http://localhost:PUERTO en el navegador, confirmar que se ven los datos y que el botón de actualizar funciona
+
+Empieza ahora. Primer paso: crea el CLAUDE.md y toda la infraestructura de agentes y skills.

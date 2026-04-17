@@ -1,0 +1,28 @@
+{
+  "name": "weather-api",
+  "version": "1.0.0",
+  "description": "REST API service for weather data from Open-Meteo",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "node --experimental-vm-modules node_modules/.bin/jest",
+    "test:unit": "node --experimental-vm-modules node_modules/.bin/jest tests/unit/",
+    "test:mocks": "node --experimental-vm-modules node_modules/.bin/jest tests/mocks/",
+    "test:integration": "node --experimental-vm-modules node_modules/.bin/jest tests/integration/",
+    "test:coverage": "node --experimental-vm-modules node_modules/.bin/jest --coverage",
+    "lint": "eslint src/ tests/"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^5.2.1",
+    "node-fetch": "^3.3.2"
+  },
+  "devDependencies": {
+    "eslint": "^9.39.4",
+    "jest": "^30.3.0",
+    "supertest": "^7.2.2"
+  }
+}

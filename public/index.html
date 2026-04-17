@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tiempo en Valencia - Weather API</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>&#127326; Weather API</h1>
+    <p class="subtitle">Datos meteorologicos en tiempo real</p>
+  </header>
+
+  <main>
+    <div class="weather-card" id="weather-card">
+
+      <!-- Loading state -->
+      <div class="state state--loading" id="state-loading">
+        <div class="spinner"></div>
+        <p>Cargando datos meteorologicos...</p>
+      </div>
+
+      <!-- Error state -->
+      <div class="state state--error hidden" id="state-error">
+        <span class="error-icon" aria-hidden="true">&#9888;&#65039;</span>
+        <p id="error-message">No se pudieron obtener los datos meteorologicos</p>
+        <button class="btn btn--retry" id="btn-retry" type="button">Reintentar</button>
+      </div>
+
+      <!-- Data state -->
+      <div class="state state--data hidden" id="state-data" aria-live="polite">
+
+        <section class="location-section">
+          <h2 id="city-name">Valencia</h2>
+          <p class="coords">
+            <span aria-label="Ubicacion">&#128205;</span>
+            <span id="coords-text">39.47°N, 0.38°W</span>
+          </p>
+          <p class="source" id="source-text">Fuente: Open-Meteo API</p>
+        </section>
+
+        <section class="data-section">
+          <div class="data-block temperature-block" id="temp-block">
+            <span class="data-icon" aria-hidden="true">&#127777;&#65039;</span>
+            <div class="data-values">
+              <span class="data-primary" id="temp-celsius">--°C</span>
+              <span class="data-secondary" id="temp-fahrenheit">--°F</span>
+              <span class="data-tertiary" id="temp-kelvin">-- K</span>
+            </div>
+            <p class="data-label">Temperatura</p>
+          </div>
+
+          <div class="data-block wind-block">
+            <span class="data-icon" aria-hidden="true">&#128168;</span>
+            <div class="data-values">
+              <span class="data-primary" id="wind-kmh">-- km/h</span>
+              <span class="data-secondary" id="wind-mph">-- mph</span>
+              <span class="data-tertiary" id="wind-ms">-- m/s</span>
+            </div>
+            <p class="data-label">Viento</p>
+          </div>
+        </section>
+
+        <section class="meta-section">
+          <p class="timestamp">
+            <span aria-hidden="true">&#128339;</span>
+            Ultima actualizacion: <span id="timestamp-text">--</span>
+          </p>
+        </section>
+
+        <button class="btn btn--refresh" id="btn-refresh" type="button">
+          &#128260; Actualizar datos
+        </button>
+      </div>
+    </div>
+
+    <!-- Alerts Section -->
+    <section class="alerts-section hidden" id="alerts-section">
+      <h2>&#9888;&#65039; Alertas Meteorologicas</h2>
+      <div id="alerts-container"></div>
+    </section>
+
+    <!-- Forecast Section -->
+    <section class="forecast-section" id="forecast-section">
+      <h2>&#128197; Prevision 24 Horas</h2>
+      <div class="forecast-timeline" id="forecast-timeline">
+        <p class="forecast-loading">Cargando prevision...</p>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>Datos proporcionados por <strong>Open-Meteo API</strong> &mdash; Valencia, Espana</p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
